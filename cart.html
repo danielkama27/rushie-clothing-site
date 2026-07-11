@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cart - Rushie's Piece of Art and Clothing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --terracotta: #c67b5c;
+            --sage: #8da399;
+            --cream: #f7f3e9;
+            --mustard: #d4a843;
+            --charcoal: #3d3d3d;
+            --warm-white: #fffdf8;
+            --rust: #a0522d;
+        }
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+        nav {
+            background: var(--warm-white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--terracotta);
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--charcoal);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-links a:hover { color: var(--terracotta); }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--terracotta);
+            transition: width 0.3s;
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .cart-icon { position: relative; }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--terracotta);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-header {
+            background: linear-gradient(135deg, var(--cream) 0%, #e8dfd0 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .page-header h1 { font-size: 3rem; color: var(--charcoal); margin-bottom: 0.5rem; }
+        .page-header p { color: #888; font-size: 1.1rem; }
+
+        .cart-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 3rem;
+        }
+        .cart-items {
+            background: var(--warm-white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .cart-items h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+        .cart-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+        .cart-item-info { flex: 1; }
+        .cart-item-info .name { font-weight: 700; font-size: 1.1rem; margin-bottom: 0.2rem; }
+        .cart-item-info .cat { color: #888; font-size: 0.85rem; margin-bottom: 0.3rem; }
+        .cart-item-info .price { color: var(--terracotta); font-weight: 700; font-size: 1.1rem; }
+        .cart-item-actions { display: flex; align-items: center; gap: 1rem; }
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-family: 'Lato', sans-serif;
+        }
+        .remove-btn:hover { text-decoration: underline; }
+        .empty-cart {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #888;
+        }
+        .empty-cart h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .btn {
+            display: inline-block;
+            padding: 0.9rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Lato', sans-serif;
+        }
+        .btn-primary {
+            background: var(--terracotta);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: var(--rust);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(198,123,92,0.3);
+        }
+        .btn-secondary {
+            background: transparent;
+            color: var(--terracotta);
+            border: 2px solid var(--terracotta);
+        }
+        .btn-secondary:hover { background: var(--terracotta); color: white; }
+
+        .cart-summary {
+            background: var(--warm-white);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        .cart-summary h2 { font-size: 1.5rem; margin-bottom: 1.5rem; }
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .summary-row.total {
+            border-top: 2px solid var(--terracotta);
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            padding-top: 1rem;
+        }
+
+        .checkout-form {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        .checkout-form h3 { font-size: 1.2rem; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-size: 0.9rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Lato', sans-serif;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group textarea:focus { border-color: var(--terracotta); }
+        .form-group textarea { resize: vertical; min-height: 60px; }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--terracotta);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 2000;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #27ae60; }
+
+        .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+        @media (max-width: 768px) {
+            .nav-links { display: none; position: absolute; top: 60px; left: 0; width: 100%; background: var(--warm-white); flex-direction: column; padding: 1rem; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+            .nav-links.active { display: flex; }
+            .menu-toggle { display: block; }
+            .page-header h1 { font-size: 2rem; }
+            .cart-container { grid-template-columns: 1fr; }
+            .cart-summary { position: static; }
+        }
+        footer {
+            background: var(--charcoal);
+            color: var(--cream);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--terracotta); margin-bottom: 1rem; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; list-style: none; }
+        .footer-links a { color: var(--cream); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; font-size: 0.9rem; color: #999; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">Rushie's</a>
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="upload.html">Upload</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li class="cart-icon">
+                    <a href="cart.html">🛒 <span class="cart-count" id="cartCount">0</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1>Your Cart</h1>
+        <p>Review your selected treasures</p>
+    </div>
+
+    <div class="cart-container">
+        <div class="cart-items" id="cartItems">
+            <!-- Cart items loaded by JS -->
+        </div>
+
+        <div class="cart-summary" id="cartSummary" style="display: none;">
+            <h2>Order Summary</h2>
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotal">$0</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping</span>
+                <span id="shipping">$5</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax</span>
+                <span id="tax">$0</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="total">$0</span>
+            </div>
+
+            <form class="checkout-form" id="checkoutForm" onsubmit="placeOrder(event)">
+                <h3>Customer Details</h3>
+                <div class="form-group">
+                    <label for="customerName">Full Name</label>
+                    <input type="text" id="customerName" required placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label for="customerEmail">Email</label>
+                    <input type="email" id="customerEmail" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">Phone</label>
+                    <input type="tel" id="customerPhone" required placeholder="+1 234 567 8900">
+                </div>
+                <div class="form-group">
+                    <label for="customerAddress">Shipping Address</label>
+                    <textarea id="customerAddress" required placeholder="Your full address..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Rushie's Piece of Art and Clothing</div>
+            <ul class="footer-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="upload.html">Upload</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+            <div class="footer-bottom">
+                © 2026 Rushie's Piece of Art and Clothing. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('rushieCart') || '[]');
+            document.getElementById('cartCount').textContent = cart.length;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function renderCart() {
+            const cart = JSON.parse(localStorage.getItem('rushieCart') || '[]');
+            const container = document.getElementById('cartItems');
+            const summary = document.getElementById('cartSummary');
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-cart">
+                        <h3>Your cart is empty</h3>
+                        <p>Looks like you haven't added any items yet.</p>
+                        <a href="shop.html" class="btn btn-primary" style="margin-top: 1.5rem;">Browse Shop</a>
+                    </div>
+                `;
+                summary.style.display = 'none';
+                return;
+            }
+
+            summary.style.display = 'block';
+            container.innerHTML = `<h2>Cart Items (${cart.length})</h2>` + cart.map((item, index) => `
+                <div class="cart-item">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="cart-item-info">
+                        <div class="name">${item.name}</div>
+                        <div class="cat">${item.category}</div>
+                        <div class="price">$${item.price}</div>
+                    </div>
+                    <div class="cart-item-actions">
+                        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const cart = JSON.parse(localStorage.getItem('rushieCart') || '[]');
+            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            const shipping = subtotal > 50 ? 0 : 5;
+            const tax = subtotal * 0.08;
+            const total = subtotal + shipping + tax;
+
+            document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+            document.getElementById('shipping').textContent = shipping === 0 ? 'Free' : '$' + shipping.toFixed(2);
+            document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+            document.getElementById('total').textContent = '$' + total.toFixed(2);
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('rushieCart') || '[]');
+            cart.splice(index, 1);
+            localStorage.setItem('rushieCart', JSON.stringify(cart));
+            renderCart();
+            updateCartCount();
+            showToast('Item removed from cart');
+        }
+
+        function placeOrder(event) {
+            event.preventDefault();
+            const cart = JSON.parse(localStorage.getItem('rushieCart') || '[]');
+            if (cart.length === 0) {
+                showToast('Your cart is empty!', 'error');
+                return;
+            }
+
+            const name = document.getElementById('customerName').value;
+            const email = document.getElementById('customerEmail').value;
+            const phone = document.getElementById('customerPhone').value;
+            const address = document.getElementById('customerAddress').value;
+            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            const shipping = subtotal > 50 ? 0 : 5;
+            const tax = subtotal * 0.08;
+            const total = subtotal + shipping + tax;
+
+            const order = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                customer: { name, email, phone, address },
+                items: cart,
+                subtotal, shipping, tax, total,
+                status: 'Pending'
+            };
+
+            let orders = JSON.parse(localStorage.getItem('rushieOrders') || '[]');
+            orders.push(order);
+            localStorage.setItem('rushieOrders', JSON.stringify(orders));
+            localStorage.setItem('rushieCart', '[]');
+
+            showToast('Order placed successfully! Thank you.', 'success');
+            renderCart();
+            updateCartCount();
+            document.getElementById('checkoutForm').reset();
+
+            setTimeout(() => {
+                location.href = 'orders.html';
+            }, 1500);
+        }
+
+        updateCartCount();
+        renderCart();
+    </script>
+</body>
+</html>

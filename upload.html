@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Items - Rushie's Piece of Art and Clothing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --terracotta: #c67b5c;
+            --sage: #8da399;
+            --cream: #f7f3e9;
+            --mustard: #d4a843;
+            --charcoal: #3d3d3d;
+            --warm-white: #fffdf8;
+            --rust: #a0522d;
+        }
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+        nav {
+            background: var(--warm-white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--terracotta);
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--charcoal);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-links a:hover { color: var(--terracotta); }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--terracotta);
+            transition: width 0.3s;
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .cart-icon { position: relative; }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--terracotta);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-header {
+            background: linear-gradient(135deg, var(--cream) 0%, #e8dfd0 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .page-header h1 { font-size: 3rem; color: var(--charcoal); margin-bottom: 0.5rem; }
+        .page-header p { color: #888; font-size: 1.1rem; }
+
+        .upload-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        .upload-form {
+            background: var(--warm-white);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--charcoal);
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-family: 'Lato', sans-serif;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--terracotta);
+        }
+        .form-group textarea { resize: vertical; min-height: 100px; }
+        .image-upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s, background 0.3s;
+            position: relative;
+        }
+        .image-upload-area:hover {
+            border-color: var(--terracotta);
+            background: rgba(198,123,92,0.03);
+        }
+        .image-upload-area.has-image {
+            border-style: solid;
+            border-color: var(--terracotta);
+            padding: 1rem;
+        }
+        .image-upload-area input[type="file"] {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+        .upload-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            display: none;
+        }
+        .upload-preview.visible { display: block; margin: 0 auto; }
+        .upload-icon { font-size: 3rem; color: #ccc; margin-bottom: 0.5rem; }
+        .upload-text { color: #888; }
+
+        .btn {
+            display: inline-block;
+            padding: 0.9rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-family: 'Lato', sans-serif;
+        }
+        .btn-primary {
+            background: var(--terracotta);
+            color: white;
+            width: 100%;
+        }
+        .btn-primary:hover {
+            background: var(--rust);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(198,123,92,0.3);
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+        .btn-danger:hover { background: #c0392b; }
+
+        .items-list {
+            background: var(--warm-white);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .items-list h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .items-list h2 span { font-size: 1rem; color: #888; font-family: 'Lato', sans-serif; }
+        .item-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .item-row img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .item-row-info { flex: 1; }
+        .item-row-info .name { font-weight: 700; }
+        .item-row-info .price { color: var(--terracotta); font-size: 0.9rem; }
+        .item-row-info .cat { font-size: 0.8rem; color: #888; }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--terracotta);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 2000;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #27ae60; }
+        .toast.error { background: #e74c3c; }
+
+        .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+        @media (max-width: 768px) {
+            .nav-links { display: none; position: absolute; top: 60px; left: 0; width: 100%; background: var(--warm-white); flex-direction: column; padding: 1rem; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+            .nav-links.active { display: flex; }
+            .menu-toggle { display: block; }
+            .page-header h1 { font-size: 2rem; }
+        }
+        footer {
+            background: var(--charcoal);
+            color: var(--cream);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--terracotta); margin-bottom: 1rem; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; list-style: none; }
+        .footer-links a { color: var(--cream); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; font-size: 0.9rem; color: #999; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">Rushie's</a>
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="upload.html">Upload</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li class="cart-icon">
+                    <a href="cart.html">🛒 <span class="cart-count" id="cartCount">0</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1>Upload New Items</h1>
+        <p>Add your treasures to the shop collection</p>
+    </div>
+
+    <div class="upload-container">
+        <div class="upload-form">
+            <form id="uploadForm" onsubmit="handleUpload(event)">
+                <div class="form-group">
+                    <label>Item Image</label>
+                    <div class="image-upload-area" id="uploadArea" onclick="document.getElementById('itemImage').click()">
+                        <input type="file" id="itemImage" accept="image/*" required onchange="previewImage(event)">
+                        <div class="upload-icon" id="uploadIcon">📷</div>
+                        <div class="upload-text" id="uploadText">Click or drag to upload an image</div>
+                        <img id="previewImage" class="upload-preview" alt="Preview">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="itemName">Item Name</label>
+                    <input type="text" id="itemName" required placeholder="e.g., Vintage Denim Jacket">
+                </div>
+                <div class="form-group">
+                    <label for="itemCategory">Category</label>
+                    <select id="itemCategory" required>
+                        <option value="">Select a category</option>
+                        <option value="Clothing">Clothing</option>
+                        <option value="Art">Art</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Shoes">Shoes</option>
+                        <option value="Home">Home</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="itemPrice">Price ($)</label>
+                    <input type="number" id="itemPrice" min="0" step="0.01" required placeholder="29.99">
+                </div>
+                <div class="form-group">
+                    <label for="itemDescription">Description</label>
+                    <textarea id="itemDescription" placeholder="Tell customers about this item..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload Item</button>
+            </form>
+        </div>
+
+        <div class="items-list">
+            <h2>Your Items <span id="itemCount"></span></h2>
+            <div id="itemsList"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Rushie's Piece of Art and Clothing</div>
+            <ul class="footer-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="upload.html">Upload</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+            <div class="footer-bottom">
+                © 2026 Rushie's Piece of Art and Clothing. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('rushieCart') || '[]');
+            document.getElementById('cartCount').textContent = cart.length;
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('previewImage');
+                img.src = e.target.result;
+                img.classList.add('visible');
+                document.getElementById('uploadIcon').style.display = 'none';
+                document.getElementById('uploadText').style.display = 'none';
+                document.getElementById('uploadArea').classList.add('has-image');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function handleUpload(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('itemImage');
+            const name = document.getElementById('itemName').value;
+            const category = document.getElementById('itemCategory').value;
+            const price = parseFloat(document.getElementById('itemPrice').value);
+            const description = document.getElementById('itemDescription').value;
+
+            if (!fileInput.files[0]) {
+                showToast('Please select an image', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                let items = JSON.parse(localStorage.getItem('rushieItems') || '[]');
+                const newItem = {
+                    id: Date.now(),
+                    name: name,
+                    category: category,
+                    price: price,
+                    description: description,
+                    image: e.target.result
+                };
+                items.push(newItem);
+                localStorage.setItem('rushieItems', JSON.stringify(items));
+                showToast('Item uploaded successfully!');
+                resetForm();
+                loadItemsList();
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+
+        function resetForm() {
+            document.getElementById('uploadForm').reset();
+            document.getElementById('previewImage').classList.remove('visible');
+            document.getElementById('uploadIcon').style.display = 'block';
+            document.getElementById('uploadText').style.display = 'block';
+            document.getElementById('uploadArea').classList.remove('has-image');
+        }
+
+        function loadItemsList() {
+            const items = JSON.parse(localStorage.getItem('rushieItems') || '[]');
+            const container = document.getElementById('itemsList');
+            document.getElementById('itemCount').textContent = `(${items.length})`;
+            if (items.length === 0) {
+                container.innerHTML = '<p style="color: #888; text-align: center; padding: 2rem;">No items uploaded yet. Add your first item above!</p>';
+                return;
+            }
+            container.innerHTML = items.slice().reverse().map(item => `
+                <div class="item-row">
+                    <img src="${item.image}" alt="${item.name}">
+                    <div class="item-row-info">
+                        <div class="name">${item.name}</div>
+                        <div class="cat">${item.category}</div>
+                        <div class="price">$${item.price}</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="deleteItem(${item.id})">Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function deleteItem(id) {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+            let items = JSON.parse(localStorage.getItem('rushieItems') || '[]');
+            items = items.filter(item => item.id !== id);
+            localStorage.setItem('rushieItems', JSON.stringify(items));
+            loadItemsList();
+            showToast('Item deleted');
+        }
+
+        updateCartCount();
+        loadItemsList();
+    </script>
+</body>
+</html>

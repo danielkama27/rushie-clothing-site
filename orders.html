@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orders - Rushie's Piece of Art and Clothing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --terracotta: #c67b5c;
+            --sage: #8da399;
+            --cream: #f7f3e9;
+            --mustard: #d4a843;
+            --charcoal: #3d3d3d;
+            --warm-white: #fffdf8;
+            --rust: #a0522d;
+        }
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--cream);
+            color: var(--charcoal);
+            line-height: 1.6;
+        }
+        h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+        nav {
+            background: var(--warm-white);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--terracotta);
+            text-decoration: none;
+        }
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: var(--charcoal);
+            font-weight: 500;
+            transition: color 0.3s;
+            position: relative;
+        }
+        .nav-links a:hover { color: var(--terracotta); }
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--terracotta);
+            transition: width 0.3s;
+        }
+        .nav-links a:hover::after { width: 100%; }
+        .cart-icon { position: relative; }
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--terracotta);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .page-header {
+            background: linear-gradient(135deg, var(--cream) 0%, #e8dfd0 100%);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+        .page-header h1 { font-size: 3rem; color: var(--charcoal); margin-bottom: 0.5rem; }
+        .page-header p { color: #888; font-size: 1.1rem; }
+
+        .orders-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--warm-white);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--terracotta);
+            font-family: 'Playfair Display', serif;
+        }
+        .stat-card .label { color: #888; font-size: 0.9rem; }
+
+        .order-card {
+            background: var(--warm-white);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .order-id { font-weight: 700; font-size: 1.1rem; }
+        .order-date { color: #888; font-size: 0.9rem; }
+        .order-status {
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .order-items {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            overflow-x: auto;
+        }
+        .order-item-thumb {
+            min-width: 80px;
+            text-align: center;
+        }
+        .order-item-thumb img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+            display: block;
+            margin: 0 auto 0.3rem;
+        }
+        .order-item-thumb .name { font-size: 0.75rem; color: #666; }
+        .order-customer {
+            background: #f8f8f8;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        .order-customer p { font-size: 0.9rem; color: #666; margin: 0.2rem 0; }
+        .order-customer strong { color: var(--charcoal); }
+        .order-total {
+            text-align: right;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--terracotta);
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-family: 'Lato', sans-serif;
+        }
+        .btn-primary { background: var(--terracotta); color: white; }
+        .btn-primary:hover { background: var(--rust); }
+        .btn-success { background: #27ae60; color: white; }
+        .btn-success:hover { background: #219a52; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn-danger:hover { background: #c0392b; }
+        .btn-secondary { background: transparent; color: var(--terracotta); border: 2px solid var(--terracotta); }
+        .btn-secondary:hover { background: var(--terracotta); color: white; }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #888;
+        }
+        .empty-state h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--terracotta);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s;
+            z-index: 2000;
+        }
+        .toast.show { transform: translateX(0); }
+
+        .menu-toggle { display: none; font-size: 1.5rem; cursor: pointer; }
+        @media (max-width: 768px) {
+            .nav-links { display: none; position: absolute; top: 60px; left: 0; width: 100%; background: var(--warm-white); flex-direction: column; padding: 1rem; box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
+            .nav-links.active { display: flex; }
+            .menu-toggle { display: block; }
+            .page-header h1 { font-size: 2rem; }
+        }
+        footer {
+            background: var(--charcoal);
+            color: var(--cream);
+            padding: 3rem 2rem 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+        .footer-logo { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--terracotta); margin-bottom: 1rem; }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; list-style: none; }
+        .footer-links a { color: var(--cream); text-decoration: none; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--terracotta); }
+        .footer-bottom { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem; font-size: 0.9rem; color: #999; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <a href="index.html" class="logo">Rushie's</a>
+            <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="upload.html">Upload</a></li>
+                <li><a href="orders.html">Orders</a></li>
+                <li class="cart-icon">
+                    <a href="cart.html">🛒 <span class="cart-count" id="cartCount">0</span></a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <h1>Orders</h1>
+        <p>Track and manage customer orders</p>
+    </div>
+
+    <div class="orders-container">
+        <div class="stats-bar" id="statsBar">
+            <!-- Stats loaded by JS -->
+        </div>
+        <div id="ordersList">
+            <!-- Orders loaded by JS -->
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Rushie's Piece of Art and Clothing</div>
+            <ul class="footer-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="shop.html">Shop</a></li>
+                <li><a href="upload.html">Upload</a></li>
+                <li><a href="cart.html">Cart</a></li>
+            </ul>
+            <div class="footer-bottom">
+                © 2026 Rushie's Piece of Art and Clothing. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('navLinks').classList.toggle('active');
+        }
+
+        function updateCartCount() {
+            const cart = JSON.parse(localStorage.getItem('rushieCart') || '[]');
+            document.getElementById('cartCount').textContent = cart.length;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function renderStats() {
+            const orders = JSON.parse(localStorage.getItem('rushieOrders') || '[]');
+            const totalOrders = orders.length;
+            const pending = orders.filter(o => o.status === 'Pending').length;
+            const completed = orders.filter(o => o.status === 'Completed').length;
+            const revenue = orders.reduce((sum, o) => sum + o.total, 0);
+
+            document.getElementById('statsBar').innerHTML = `
+                <div class="stat-card"><div class="number">${totalOrders}</div><div class="label">Total Orders</div></div>
+                <div class="stat-card"><div class="number">${pending}</div><div class="label">Pending</div></div>
+                <div class="stat-card"><div class="number">${completed}</div><div class="label">Completed</div></div>
+                <div class="stat-card"><div class="number">$${revenue.toFixed(2)}</div><div class="label">Revenue</div></div>
+            `;
+        }
+
+        function renderOrders() {
+            const orders = JSON.parse(localStorage.getItem('rushieOrders') || '[]');
+            const container = document.getElementById('ordersList');
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No orders yet</h3>
+                        <p>Orders will appear here once customers start placing them.</p>
+                        <a href="shop.html" class="btn btn-secondary" style="margin-top: 1rem;">Go to Shop</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = orders.slice().reverse().map(order => `
+                <div class="order-card">
+                    <div class="order-header">
+                        <div>
+                            <span class="order-id">Order #${order.id.toString().slice(-6)}</span>
+                            <span class="order-date"> &mdash; ${order.date}</span>
+                        </div>
+                        <span class="order-status status-${order.status.toLowerCase()}">${order.status}</span>
+                    </div>
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item-thumb">
+                                <img src="${item.image}" alt="${item.name}">
+                                <div class="name">${item.name}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-customer">
+                        <p><strong>${order.customer.name}</strong></p>
+                        <p>📧 ${order.customer.email}</p>
+                        <p>📱 ${order.customer.phone}</p>
+                        <p>📍 ${order.customer.address}</p>
+                    </div>
+                    <div class="order-total">
+                        Total: $${order.total.toFixed(2)}
+                        <span style="color: #888; font-size: 0.8rem; font-weight: 400; display: block;">
+                            Subtotal: $${order.subtotal.toFixed(2)} + Shipping: ${order.shipping === 0 ? 'Free' : '$' + order.shipping.toFixed(2)} + Tax: $${order.tax.toFixed(2)}
+                        </span>
+                    </div>
+                    <div class="order-actions">
+                        ${order.status === 'Pending' ? `
+                            <button class="btn btn-success" onclick="completeOrder(${order.id})">Mark Complete</button>
+                            <button class="btn btn-danger" onclick="cancelOrder(${order.id})">Cancel</button>
+                        ` : ''}
+                        <button class="btn btn-primary" onclick="deleteOrder(${order.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function completeOrder(id) {
+            let orders = JSON.parse(localStorage.getItem('rushieOrders') || '[]');
+            const order = orders.find(o => o.id === id);
+            if (order) order.status = 'Completed';
+            localStorage.setItem('rushieOrders', JSON.stringify(orders));
+            renderStats();
+            renderOrders();
+            showToast('Order marked as completed');
+        }
+
+        function cancelOrder(id) {
+            if (!confirm('Cancel this order?')) return;
+            let orders = JSON.parse(localStorage.getItem('rushieOrders') || '[]');
+            const order = orders.find(o => o.id === id);
+            if (order) order.status = 'Cancelled';
+            localStorage.setItem('rushieOrders', JSON.stringify(orders));
+            renderStats();
+            renderOrders();
+            showToast('Order cancelled');
+        }
+
+        function deleteOrder(id) {
+            if (!confirm('Delete this order permanently?')) return;
+            let orders = JSON.parse(localStorage.getItem('rushieOrders') || '[]');
+            orders = orders.filter(o => o.id !== id);
+            localStorage.setItem('rushieOrders', JSON.stringify(orders));
+            renderStats();
+            renderOrders();
+            showToast('Order deleted');
+        }
+
+        updateCartCount();
+        renderStats();
+        renderOrders();
+    </script>
+</body>
+</html>
